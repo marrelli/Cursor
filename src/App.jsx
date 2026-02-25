@@ -27,6 +27,7 @@ function App() {
   const queuedActionRef = useRef(null)
   const activeTimersRef = useRef([])
   const cardDebounceTimerRef = useRef(null)
+  const requestActionRef = useRef(null)
   const panelHeaderRef = useRef(null)
   const returnFocusCardIdRef = useRef(null)
   const cardElementMapRef = useRef(new Map())
@@ -180,6 +181,10 @@ function App() {
     runAction(action)
   }
 
+  useEffect(() => {
+    requestActionRef.current = requestAction
+  }, [requestAction])
+
   const handleModuleSelect = (moduleId) => {
     if (cardDebounceTimerRef.current) {
       window.clearTimeout(cardDebounceTimerRef.current)
@@ -214,12 +219,12 @@ function App() {
       }
 
       event.preventDefault()
-      requestAction({ type: 'close' })
+      requestActionRef.current?.({ type: 'close' })
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [requestAction])
+  }, [])
 
   useEffect(() => {
     return () => {
