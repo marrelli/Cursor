@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DrillDownPanel from './components/DrillDownPanel'
 import LayerRow from './components/LayerRow'
 import { layers } from './data/layers'
@@ -27,7 +27,7 @@ function App() {
   const queuedActionRef = useRef(null)
   const activeTimersRef = useRef([])
   const cardDebounceTimerRef = useRef(null)
-  const requestActionRef = useRef(null)
+  const runActionRef = useRef(null)
   const panelHeaderRef = useRef(null)
   const returnFocusCardIdRef = useRef(null)
   const cardElementMapRef = useRef(new Map())
@@ -63,28 +63,28 @@ function App() {
   const displayedModule = displayedModuleId ? moduleById.get(displayedModuleId) ?? null : null
   const displayedLayer = displayedModule ? layerById.get(displayedModule.layerId) ?? null : null
 
-  const focusPanelHeader = () => {
+  const focusPanelHeader = useCallback(() => {
     panelHeaderRef.current?.focus()
-  }
+  }, [])
 
-  const focusCard = (moduleId) => {
+  const focusCard = useCallback((moduleId) => {
     cardElementMapRef.current.get(moduleId)?.focus()
-  }
+  }, [])
 
-  const registerCardRef = (moduleId, element) => {
+  const registerCardRef = useCallback((moduleId, element) => {
     if (element) {
       cardElementMapRef.current.set(moduleId, element)
       return
     }
 
     cardElementMapRef.current.delete(moduleId)
-  }
+  }, [])
 
-  const clearTimerFromRegistry = (timerId) => {
+  const clearTimerFromRegistry = useCallback((timerId) => {
     activeTimersRef.current = activeTimersRef.current.filter((trackedTimerId) => trackedTimerId !== timerId)
-  }
+  }, [])
 
-  const setManagedTimeout = (callback, delayMs) => {
+  const setManagedTimeout = useCallback((callback, delayMs) => {
     const timerId = window.setTimeout(() => {
       clearTimerFromRegistry(timerId)
       callback()
@@ -92,9 +92,9 @@ function App() {
 
     activeTimersRef.current.push(timerId)
     return timerId
-  }
+  }, [clearTimerFromRegistry])
 
-  const beginAnimation = (durationMs, onComplete) => {
+  const beginAnimation = useCallback((durationMs, onComplete) => {
     isAnimatingRef.current = true
 
     setManagedTimeout(() => {
@@ -104,12 +104,12 @@ function App() {
       const queuedAction = queuedActionRef.current
       queuedActionRef.current = null
       if (queuedAction) {
-        runAction(queuedAction)
+        runActionRef.current?.(queuedAction)
       }
     }, durationMs)
-  }
+  }, [setManagedTimeout])
 
-  const runAction = (action) => {
+  const runAction = useCallback((action) => {
     if (action.type === 'close') {
       if (!isPanelOpenRef.current && !displayedModuleIdRef.current) {
         return
@@ -170,20 +170,20 @@ function App() {
     }, SWAP_FADE_OUT_MS + SWAP_GAP_MS)
 
     beginAnimation(SWAP_TOTAL_MS)
-  }
+  }, [beginAnimation, focusCard, focusPanelHeader, setManagedTimeout])
 
-  const requestAction = (action) => {
+  useEffect(() => {
+    runActionRef.current = runAction
+  }, [runAction])
+
+  const requestAction = useCallback((action) => {
     if (isAnimatingRef.current) {
       queuedActionRef.current = action
       return
     }
 
     runAction(action)
-  }
-
-  useEffect(() => {
-    requestActionRef.current = requestAction
-  }, [requestAction])
+  }, [runAction])
 
   const handleModuleSelect = (moduleId) => {
     if (cardDebounceTimerRef.current) {
@@ -219,12 +219,12 @@ function App() {
       }
 
       event.preventDefault()
-      requestActionRef.current?.({ type: 'close' })
+      requestAction({ type: 'close' })
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [requestAction])
 
   useEffect(() => {
     return () => {
