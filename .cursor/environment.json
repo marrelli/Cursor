@@ -1,0 +1,5 @@
+{
+  "name": "AI Agentic Platform Frontend",
+  "install": "npm ci",
+  "start": "echo \"Environment ready: dependencies installed via npm ci\""
+}
