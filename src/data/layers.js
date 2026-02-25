@@ -1,0 +1,51 @@
+export const layers = [
+  {
+    id: 'layer-1',
+    order: 1,
+    name: 'Foundation & Data',
+    color: '#1E3A5F',
+    icon: 'Database',
+  },
+  {
+    id: 'layer-2',
+    order: 2,
+    name: 'AI & Model Services',
+    color: '#2D4E8A',
+    icon: 'Brain',
+  },
+  {
+    id: 'layer-3',
+    order: 3,
+    name: 'Agent Infrastructure',
+    color: '#3D5FA8',
+    icon: 'Bot',
+  },
+  {
+    id: 'layer-4',
+    order: 4,
+    name: 'Workflow & Process',
+    color: '#2A7E8C',
+    icon: 'Workflow',
+  },
+  {
+    id: 'layer-5',
+    order: 5,
+    name: 'Experience & Interfaces',
+    color: '#2E8B6A',
+    icon: 'Monitor',
+  },
+  {
+    id: 'layer-6',
+    order: 6,
+    name: 'Governance & Operations',
+    color: '#C47B1A',
+    icon: 'Shield',
+  },
+  {
+    id: 'layer-7',
+    order: 7,
+    name: 'Business Outcomes',
+    color: '#B8860B',
+    icon: 'TrendingUp',
+  },
+]
