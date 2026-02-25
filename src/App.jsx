@@ -152,7 +152,7 @@ function App() {
     }
 
     if (currentlySelectedModuleId === targetModuleId) {
-      runAction({ type: 'close' })
+      runActionRef.current?.({ type: 'close' })
       return
     }
 
